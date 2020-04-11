@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<!--  Datasources -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:bookstore-database.cuuhmfx1bk8m.eu-west-1.rds.amazonaws.com"/>
+		<property name="username" value="vppadmin"/>
+		<property name="password" value="vppadmin"/>
+	</bean>
+	
+	<!-- Transaction Manager for the Project -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>	
+	</bean>
+	
+	<!-- Templates -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<constructor-arg ref="dataSource"/>
+	</bean>
+	
+	<!--  DAO Beans -->
+	<bean id="bookDao" class="com.virtualpairprogrammers.data.BookDaoCleanerJdbcImpl" init-method="createTables">
+		<constructor-arg ref="jdbcTemplate"/>
+	</bean>
+	   	  
+	<!--  Transaction Configuration -->
+	<tx:annotation-driven/>
+	
+	<!--  Service beans -->
+	<bean id="accountsService" 
+          class="com.virtualpairprogrammers.services.AccountsServiceMockImpl"/>
+
+    <bean id="bookService"       
+          class="com.virtualpairprogrammers.services.BookServiceProductionImpl">
+          
+          <constructor-arg ref="bookDao"/>      
+    </bean>
+</beans>
